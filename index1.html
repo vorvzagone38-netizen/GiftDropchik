@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Кейсы и Подарки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        /* Шапка с балансом */
+        .header {
+            background: linear-gradient(90deg, #0f3460 0%, #1a1a2e 100%);
+            padding: 20px;
+            border-bottom: 2px solid #00adb5;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .balance-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .balance {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00adb5;
+            text-shadow: 0 0 10px rgba(0, 173, 181, 0.3);
+        }
+
+        .balance span {
+            font-size: 18px;
+            color: #eeeeee;
+        }
+
+        .deposit-btn {
+            background: linear-gradient(90deg, #00adb5 0%, #0097a7 100%);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .deposit-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Нижнее меню */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #00adb5;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #eeeeee;
+            font-size: 12px;
+            text-align: center;
+            cursor: pointer;
+            padding: 8px;
+            flex: 1;
+            transition: all 0.3s;
+        }
+
+        .nav-btn.active {
+            color: #00adb5;
+        }
+
+        .nav-btn i {
+            font-size: 20px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Основной контент */
+        .content {
+            padding: 20px;
+            padding-bottom: 70px; /* Для нижнего меню */
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        /* Стили для кейсов */
+        .case-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .case-card {
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+            border: 2px solid #00adb5;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .case-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 173, 181, 0.2);
+        }
+
+        .case-card.selected {
+            border-color: #ff9800;
+            background: linear-gradient(135deg, #0f3460 0%, #2a1a3e 100%);
+        }
+
+        .case-icon {
+            font-size: 40px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .case-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .case-cost {
+            color: #ff9800;
+            text-align: center;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .case-rewards {
+            font-size: 12px;
+            color: #bbbbbb;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* Выбор количества */
+        .quantity-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .quantity-btn {
+            background: #0f3460;
+            border: 1px solid #00adb5;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quantity-btn:hover {
+            background: #00adb5;
+        }
+
+        .quantity-btn.selected {
+            background: #ff9800;
+            border-color: #ff9800;
+        }
+
+        /* Выбор анимации */
+        .animation-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .animation-btn {
+            background: #0f3460;
+            border: 2px solid #00adb5;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .animation-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .animation-btn.selected {
+            background: #ff9800;
+            border-color: #ff9800;
+        }
+
+        .animation-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        /* Кнопка открытия */
+        .open-btn {
+            background: linear-gradient(90deg, #ff9800 0%, #f57c00 100%);
+            border: none;
+            color: white;
+            padding: 18px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin: 20px 0;
+            transition: transform 0.2s;
+        }
+
+        .open-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .open-btn:disabled {
+            background: #666666;
+            cursor: not-allowed;
+        }
+
+        .cost-display {
+            text-align: center;
+            font-size: 16px;
+            margin: 10px 0;
+            color: #ff9800;
+        }
+
+        /* Демо режим */
+        .demo-section {
+            background: rgba(15, 52, 96, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-btn {
+            background: linear-gradient(90deg, #4CAF50 0%, #2E7D32 100%);
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        /* Результаты */
+        .result-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s;
+        }
+
+        .result-container {
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+            border: 3px solid #00adb5;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        .result-title {
+            font-size: 24px;
+            color: #ff9800;
+            margin-bottom: 20px;
+        }
+
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .reward-item {
+            background: rgba(0, 173, 181, 0.1);
+            border: 1px solid #00adb5;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .reward-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .reward-name {
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .reward-value {
+            color: #ff9800;
+            font-size: 14px;
+        }
+
+        /* Пополнение баланса */
+        .deposit-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .deposit-option {
+            background: #0f3460;
+            border: 2px solid #00adb5;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .deposit-option:hover {
+            transform: scale(1.05);
+            background: #00adb5;
+        }
+
+        .deposit-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff9800;
+            margin-bottom: 5px;
+        }
+
+        /* Профиль */
+        .profile-stats {
+            background: #0f3460;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Друзья */
+        .referral-card {
+            background: linear-gradient(135deg, #0f3460 0%, #2a1a3e 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .promo-code {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px dashed #00adb5;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin: 15px 0;
+            cursor: pointer;
+        }
+
+        .copy-btn {
+            background: #4CAF50;
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        /* Адаптивность */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 500px;
+                margin: 0 auto;
+                box-shadow: 0 0 50px rgba(0, 173, 181, 0.1);
+            }
+            
+            .case-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .deposit-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            z-index: 3000;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка с балансом -->
+        <div class="header">
+            <div class="balance-container">
+                <div class="balance">
+                    <span id="balance">1000</span> ⭐
+                </div>
+                <button class="deposit-btn" onclick="showDeposit()">
+                    💰 Пополнить
+                </button>
+            </div>
+            <div style="text-align: center; font-size: 14px; color: #bbbbbb;">
+                Баланс сохраняется автоматически
+            </div>
+        </div>
+
+        <!-- Основной контент -->
+        <div class="content">
+            <!-- Раздел Кейсы -->
+            <div id="cases-section" class="section active">
+                <h2 style="text-align: center; margin-bottom: 20px; color: #00adb5;">🎁 ВЫБЕРИТЕ КЕЙС</h2>
+                
+                <div class="case-grid" id="cases-grid">
+                    <!-- Кейсы будут добавлены через JavaScript -->
+                </div>
+
+                <div class="demo-section">
+                    <button class="demo-btn" onclick="openDemoCase()">
+                        🎮 ДЕМО РЕЖИМ (БЕСПЛАТНО)
+                    </button>
+                </div>
+
+                <h3 style="margin: 20px 0 10px; color: #00adb5;">Сколько кейсов открыть?</h3>
+                <div class="quantity-selector" id="quantity-selector">
+                    <button class="quantity-btn" data-quantity="1">1</button>
+                    <button class="quantity-btn" data-quantity="3">3</button>
+                    <button class="quantity-btn" data-quantity="5">5</button>
+                    <button class="quantity-btn" data-quantity="10">10</button>
+                </div>
+
+                <h3 style="margin: 20px 0 10px; color: #00adb5;">Способ открытия</h3>
+                <div class="animation-selector">
+                    <button class="animation-btn" data-animation="fast">
+                        <div class="animation-icon">⚡</div>
+                        <div>БЫСТРО</div>
+                        <div style="font-size: 12px; color: #bbbbbb;">Мгновенно</div>
+                    </button>
+                    <button class="animation-btn" data-animation="normal">
+                        <div class="animation-icon">🎬</div>
+                        <div>ОБЫЧНЫЙ</div>
+                        <div style="font-size: 12px; color: #bbbbbb;">С анимацией</div>
+                    </button>
+                </div>
+
+                <div class="cost-display" id="cost-display">
+                    Общая стоимость: <span id="total-cost">0</span> ⭐
+                </div>
+
+                <button class="open-btn" id="open-btn" onclick="openCases()" disabled>
+                    ОТКРЫТЬ КЕЙС
+                </button>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="showFreeCases()" style="background: none; border: none; color: #00adb5; cursor: pointer; font-size: 14px;">
+                        🎁 Бесплатные кейсы
+                    </button>
+                </div>
+            </div>
+
+            <!-- Раздел Профиль -->
+            <div id="profile-section" class="section">
+                <h2 style="text-align: center; margin-bottom: 20px; color: #00adb5;">👤 ПРОФИЛЬ</h2>
+                
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span>ID пользователя:</span>
+                        <span id="user-id">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Баланс:</span>
+                        <span id="profile-balance">0</span> ⭐
+                    </div>
+                    <div class="stat-item">
+                        <span>Всего пополнено:</span>
+                        <span id="total-deposited">0</span> ⭐
+                    </div>
+                    <div class="stat-item">
+                        <span>Потрачено на кейсы:</span>
+                        <span id="total-spent">0</span> ⭐
+                    </div>
+                    <div class="stat-item">
+                        <span>Открыто кейсов:</span>
+                        <span id="cases-opened">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Стоимость инвентаря:</span>
+                        <span id="inventory-value">0</span> ⭐
+                    </div>
+                </div>
+
+                <h3 style="margin: 20px 0 10px; color: #00adb5;">📦 ИНВЕНТАРЬ</h3>
+                <div id="inventory-container" style="min-height: 100px;">
+                    <!-- Инвентарь будет здесь -->
+                </div>
+            </div>
+
+            <!-- Раздел Пополнение -->
+            <div id="deposit-section" class="section">
+                <h2 style="text-align: center; margin-bottom: 20px; color: #00adb5;">💰 ПОПОЛНЕНИЕ БАЛАНСА</h2>
+                
+                <div class="deposit-grid">
+                    <div class="deposit-option" onclick="deposit(100)">
+                        <div class="deposit-amount">100 ⭐</div>
+                    </div>
+                    <div class="deposit-option" onclick="deposit(500)">
+                        <div class="deposit-amount">500 ⭐</div>
+                    </div>
+                    <div class="deposit-option" onclick="deposit(1000)">
+                        <div class="deposit-amount">1000 ⭐</div>
+                    </div>
+                    <div class="deposit-option" onclick="deposit(5000)">
+                        <div class="deposit-amount">5000 ⭐</div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <div style="font-size: 14px; color: #bbbbbb; margin-bottom: 10px;">
+                        ИЛИ ВВЕДИТЕ СУММУ
+                    </div>
+                    <input type="number" id="custom-amount" placeholder="Сумма в звездах" 
+                           style="width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #00adb5; background: #0f3460; color: white; font-size: 16px;">
+                    <button onclick="depositCustom()" 
+                            style="width: 100%; padding: 15px; margin-top: 10px; background: #00adb5; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">
+                        ПОПОЛНИТЬ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Раздел Друзья -->
+            <div id="friends-section" class="section">
+                <h2 style="text-align: center; margin-bottom: 20px; color: #00adb5;">👥 ДРУЗЬЯ</h2>
+                
+                <div class="referral-card">
+                    <h3>🎁 Приглашай друзей - Получай Награды!</h3>
+                    <p style="margin: 10px 0; color: #bbbbbb;">
+                        Получайте 5% с пополнений приглашенных друзей
+                    </p>
+                    
+                    <div style="text-align: center; margin: 20px 0;">
+                        <div style="font-size: 14px; color: #00adb5; margin-bottom: 10px;">
+                            ВАШ ПРОМОКОД:
+                        </div>
+                        <div class="promo-code" id="promo-code" onclick="copyPromoCode()">
+                            GIFT1234
+                        </div>
+                        <button class="copy-btn" onclick="copyPromoCode()">
+                            📋 СКОПИРОВАТЬ ПРОМОКОД
+                        </button>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <div class="stat-item">
+                            <span>Приглашено друзей:</span>
+                            <span id="invited-count">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Заработано бонусов:</span>
+                            <span id="referral-bonuses">0</span> ⭐
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(15, 52, 96, 0.5); border-radius: 15px; padding: 20px; margin-top: 20px;">
+                    <h3>🎫 АКТИВИРОВАТЬ ПРОМОКОД</h3>
+                    <input type="text" id="promo-input" placeholder="Введите промокод" 
+                           style="width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 2px solid #00adb5; background: #0f3460; color: white;">
+                    <button onclick="activatePromoCode()" 
+                            style="width: 100%; padding: 15px; background: #4CAF50; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">
+                        АКТИВИРОВАТЬ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Раздел Конкурсы -->
+            <div id="contests-section" class="section">
+                <h2 style="text-align: center; margin-bottom: 20px; color: #00adb5;">🎰 КОНКУРСЫ</h2>
+                
+                <div style="background: rgba(15, 52, 96, 0.5); border-radius: 15px; padding: 20px; margin: 20px 0;">
+                    <h3>🏆 ТОП ИГРОКОВ НЕДЕЛИ</h3>
+                    <div id="leaderboard" style="margin: 15px 0;">
+                        <!-- Топ игроков -->
+                    </div>
+                </div>
+
+                <div style="background: rgba(15, 52, 96, 0.5); border-radius: 15px; padding: 20px; margin: 20px 0;">
+                    <h3>🎁 ЕЖЕДНЕВНЫЙ БОНУС</h3>
+                    <p style="margin: 10px 0; color: #bbbbbb;">
+                        Заходите каждый день и получайте бонусные звезды!
+                    </p>
+                    <button onclick="claimDailyBonus()" 
+                            style="width: 100%; padding: 15px; margin-top: 10px; background: #ff9800; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">
+                        🎁 ПОЛУЧИТЬ БОНУС
+                    </button>
+                </div>
+            </div>
+
+            <!-- Раздел Бесплатные кейсы -->
+            <div id="free-cases-section" class="section">
+                <h2 style="text-align: center; margin-bottom: 20px; color: #00adb5;">🎁 БЕСПЛАТНЫЕ КЕЙСЫ</h2>
+                
+                <div style="background: rgba(15, 52, 96, 0.5); border-radius: 15px; padding: 20px; margin: 20px 0;">
+                    <h3>🎫 ЗА ПРОМОКОД</h3>
+                    <p style="margin: 10px 0; color: #bbbbbb;">
+                        Используйте промокод друга и получите бесплатный кейс!
+                    </p>
+                    <button onclick="showFriends()" 
+                            style="width: 100%; padding: 15px; background: #00adb5; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">
+                        👥 АКТИВИРОВАТЬ ПРОМОКОД
+                    </button>
+                </div>
+
+                <div style="background: rgba(15, 52, 96, 0.5); border-radius: 15px; padding: 20px; margin: 20px 0;">
+                    <h3>💰 ЗА ПОПОЛНЕНИЕ ОТ 1000 ⭐</h3>
+                    <p style="margin: 10px 0; color: #bbbbbb;">
+                        Пополните баланс на 1000+ ⭐ и получите бесплатный кейс!
+                    </p>
+                    <button onclick="showDeposit()" 
+                            style="width: 100%; padding: 15px; background: #ff9800; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">
+                        💰 ПОПОЛНИТЬ БАЛАНС
+                    </button>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="showCases()" style="background: none; border: none; color: #00adb5; cursor: pointer; font-size: 14px;">
+                        🔙 Вернуться к кейсам
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Нижнее меню -->
+        <div class="bottom-nav">
+            <button class="nav-btn active" onclick="showSection('cases')">
+                <i>🎁</i>
+                Кейсы
+            </button>
+            <button class="nav-btn" onclick="showSection('profile')">
+                <i>👤</i>
+                Профиль
+            </button>
+            <button class="nav-btn" onclick="showSection('deposit')">
+                <i>💰</i>
+                Пополнить
+            </button>
+            <button class="nav-btn" onclick="showSection('contests')">
+                <i>🎰</i>
+                Конкурсы
+            </button>
+            <button class="nav-btn" onclick="showSection('friends')">
+                <i>👥</i>
+                Друзья
+            </button>
+        </div>
+    </div>
+
+    <!-- Оверлей с результатами -->
+    <div class="result-overlay" id="result-overlay">
+        <div class="result-container" id="result-container">
+            <!-- Результаты будут здесь -->
+        </div>
+    </div>
+
+    <!-- Уведомление -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // ===================== КОНФИГУРАЦИЯ =====================
+        const casesConfig = {
+            basic: {
+                name: "⚡ Базовый кейс",
+                cost: 50,
+                color: "#00adb5",
+                rewards: [
+                    { name: "🥉 Бронзовая монета", chance: 0.5, value: 10 },
+                    { name: "🥈 Серебряная монета", chance: 0.3, value: 25 },
+                    { name: "🥇 Золотая монета", chance: 0.15, value: 50 },
+                    { name: "💎 Алмаз", chance: 0.05, value: 100 }
+                ]
+            },
+            premium: {
+                name: "🔥 Премиум кейс",
+                cost: 200,
+                color: "#ff9800",
+                rewards: [
+                    { name: "🎮 Игровая консоль", chance: 0.4, value: 100 },
+                    { name: "💻 Ноутбук", chance: 0.3, value: 150 },
+                    { name: "🚗 Спорткар", chance: 0.2, value: 300 },
+                    { name: "🏝️ Остров", chance: 0.1, value: 500 }
+                ]
+            },
+            legendary: {
+                name: "👑 Легендарный кейс",
+                cost: 1000,
+                color: "#9c27b0",
+                rewards: [
+                    { name: "👾 Кибер-дракон", chance: 0.5, value: 500 },
+                    { name: "🚀 Космический корабль", chance: 0.3, value: 1000 },
+                    { name: "🏰 Замок", chance: 0.15, value: 2000 },
+                    { name: "⭐ Звезда Судьбы", chance: 0.05, value: 5000 }
+                ]
+            }
+        };
+
+        // ===================== СОСТОЯНИЕ ПРИЛОЖЕНИЯ =====================
+        let state = {
+            balance: 1000,
+            totalDeposited: 0,
+            totalSpent: 0,
+            casesOpened: 0,
+            selectedCase: null,
+            selectedQuantity: 1,
+            selectedAnimation: "fast",
+            inventory: [],
+            invitedCount: 0,
+            referralBonuses: 0,
+            promoCode: "GIFT" + Math.floor(1000 + Math.random() * 9000),
+            lastDailyBonus: null
+        };
+
+        // Загрузка состояния из localStorage
+        function loadState() {
+            const saved = localStorage.getItem('casesAppState');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                state = { ...state, ...parsed };
+            }
+            
+            // Проверяем Telegram Web App
+            if (window.Telegram && Telegram.WebApp) {
+                const user = Telegram.WebApp.initDataUnsafe.user;
+                if (user) {
+                    // Используем ID пользователя как ключ для хранения данных
+                    const userState = localStorage.getItem(`casesAppState_${user.id}`);
+                    if (userState) {
+                        const parsed = JSON.parse(userState);
+                        state = { ...state, ...parsed };
+                    }
+                }
+            }
+            
+            updateUI();
+        }
+
+        // Сохранение состояния в localStorage
+        function saveState() {
+            localStorage.setItem('casesAppState', JSON.stringify(state));
+            
+            // Сохраняем отдельно для пользователя Telegram
+            if (window.Telegram && Telegram.WebApp) {
+                const user = Telegram.WebApp.initDataUnsafe.user;
+                if (user) {
+                    localStorage.setItem(`casesAppState_${user.id}`, JSON.stringify(state));
+                }
+            }
+        }
+
+        // ===================== ОСНОВНЫЕ ФУНКЦИИ =====================
+
+        function showNotification(message, type = "success") {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.background = type === "success" ? "#4CAF50" : "#f44336";
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        function showSection(sectionId) {
+            // Скрываем все секции
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Показываем нужную секцию
+            document.getElementById(`${sectionId}-section`).classList.add('active');
+            
+            // Обновляем активную кнопку в меню
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[onclick="showSection('${sectionId}')"]`).classList.add('active');
+            
+            // Обновляем UI секции
+            if (sectionId === 'profile') {
+                updateProfile();
+            } else if (sectionId === 'friends') {
+                updateFriends();
+            } else if (sectionId === 'contests') {
+                updateContests();
+            }
+        }
+
+        // ===================== РАБОТА С КЕЙСАМИ =====================
+
+        function initCases() {
+            const casesGrid = document.getElementById('cases-grid');
+            casesGrid.innerHTML = '';
+            
+            Object.entries(casesConfig).forEach(([caseId, caseData]) => {
+                const caseCard = document.createElement('div');
+                caseCard.className = 'case-card';
+                caseCard.dataset.caseId = caseId;
+                caseCard.onclick = () => selectCase(caseId);
+                
+                caseCard.innerHTML = `
+                    <div class="case-icon">${caseId === 'basic' ? '⚡' : caseId === 'premium' ? '🔥' : '👑'}</div>
+                    <div class="case-name">${caseData.name}</div>
+                    <div class="case-cost">${caseData.cost} ⭐</div>
+                    <div class="case-rewards">Награды: ${caseData.rewards.length} видов</div>
+                `;
+                
+                casesGrid.appendChild(caseCard);
+            });
+            
+            // Инициализация выбора количества
+            document.querySelectorAll('.quantity-btn').forEach(btn => {
+                btn.onclick = () => selectQuantity(parseInt(btn.dataset.quantity));
+            });
+            
+            // Инициализация выбора анимации
+            document.querySelectorAll('.animation-btn').forEach(btn => {
+                btn.onclick = () => selectAnimation(btn.dataset.animation);
+            });
+            
+            // Выбираем первый кейс по умолчанию
+            selectCase('basic');
+            selectQuantity(1);
+            selectAnimation('fast');
+        }
+
+        function selectCase(caseId) {
+            state.selectedCase = caseId;
+            
+            // Обновляем выделение
+            document.querySelectorAll('.case-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-case-id="${caseId}"]`).classList.add('selected');
+            
+            updateCost();
+            updateOpenButton();
+        }
+
+        function selectQuantity(quantity) {
+            state.selectedQuantity = quantity;
+            
+            // Обновляем выделение
+            document.querySelectorAll('.quantity-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.querySelector(`[data-quantity="${quantity}"]`).classList.add('selected');
+            
+            updateCost();
+            updateOpenButton();
+        }
+
+        function selectAnimation(animation) {
+            state.selectedAnimation = animation;
+            
+            // Обновляем выделение
+            document.querySelectorAll('.animation-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.querySelector(`[data-animation="${animation}"]`).classList.add('selected');
+        }
+
+        function updateCost() {
+            if (!state.selectedCase) return;
+            
+            const caseData = casesConfig[state.selectedCase];
+            const totalCost = caseData.cost * state.selectedQuantity;
+            
+            document.getElementById('total-cost').textContent = totalCost;
+            document.getElementById('cost-display').style.display = 'block';
+        }
+
+        function updateOpenButton() {
+            const openBtn = document.getElementById('open-btn');
+            if (!state.selectedCase) {
+                openBtn.disabled = true;
+                openBtn.textContent = 'ВЫБЕРИТЕ КЕЙС';
+                return;
+            }
+            
+            const caseData = casesConfig[state.selectedCase];
+            const totalCost = caseData.cost * state.selectedQuantity;
+            
+            if (state.balance < totalCost) {
+                openBtn.disabled = true;
+                openBtn.textContent = `НЕ ХВАТАЕТ ${totalCost - state.balance} ⭐`;
+            } else {
+                openBtn.disabled = false;
+                openBtn.textContent = `ОТКРЫТЬ ${state.selectedQuantity} КЕЙС`;
+            }
+        }
+
+        function openCases() {
+            if (!state.selectedCase) return;
+            
+            const caseData = casesConfig[state.selectedCase];
+            const totalCost = caseData.cost * state.selectedQuantity;
+            
+            if (state.balance < totalCost) {
+                showNotification("Недостаточно звезд!", "error");
+                return;
+            }
+            
+            // Списание баланса
+            state.balance -= totalCost;
+            state.totalSpent += totalCost;
+            state.casesOpened += state.selectedQuantity;
+            
+            // Генерация наград
+            const rewards = [];
+            for (let i = 0; i < state.selectedQuantity; i++) {
+                const reward = generateReward(caseData.rewards);
+                rewards.push(reward);
+                
+                // Добавление в инвентарь
+                const existingItem = state.inventory.find(item => item.name === reward.name);
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                    existingItem.totalValue += reward.value;
+                } else {
+                    state.inventory.push({
+                        name: reward.name,
+                        value: reward.value,
+                        quantity: 1,
+                        totalValue: reward.value,
+                        caseType: state.selectedCase
+                    });
+                }
+            }
+            
+            // Сохранение состояния
+            saveState();
+            
+            // Показ результатов
+            showResults(rewards, totalCost);
+            
+            // Обновление UI
+            updateUI();
+        }
+
+        function generateReward(rewards) {
+            const rand = Math.random();
+            let cumulative = 0;
+            
+            for (const reward of rewards) {
+                cumulative += reward.chance;
+                if (rand <= cumulative) {
+                    return reward;
+                }
+            }
+            
+            return rewards[rewards.length - 1];
+        }
+
+        function showResults(rewards, totalCost) {
+            const overlay = document.getElementById('result-overlay');
+            const container = document.getElementById('result-container');
+            
+            // Расчет общей стоимости наград
+            const totalValue = rewards.reduce((sum, reward) => sum + reward.value, 0);
+            const profit = totalValue - totalCost;
+            
+            // Создание сетки наград
+            let rewardsHTML = '';
+            rewards.forEach((reward, index) => {
+                rewardsHTML += `
+                    <div class="reward-item">
+                        <div class="reward-icon">${reward.name.split(' ')[0]}</div>
+                        <div class="reward-name">${reward.name}</div>
+                        <div class="reward-value">${reward.value} ⭐</div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = `
+                <div class="result-title">
+                    ${profit >= 0 ? '🎉 ВЫ ВЫИГРАЛИ!' : '🎯 РЕЗУЛЬТАТЫ'}
+                </div>
+                <div style="margin: 20px 0; font-size: 18px;">
+                    Открыто: <strong>${state.selectedQuantity}</strong> ${casesConfig[state.selectedCase].name}<br>
+                    Потрачено: <strong>${totalCost}</strong> ⭐<br>
+                    Получено: <strong>${totalValue}</strong> ⭐<br>
+                    ${profit >= 0 ? 
+                        `<span style="color: #4CAF50;">Прибыль: +${profit} ⭐</span>` : 
+                        `<span style="color: #f44336;">Убыток: ${profit} ⭐</span>`}
+                </div>
+                <div class="rewards-grid">
+                    ${rewardsHTML}
+                </div>
+                <div style="margin-top: 30px;">
+                    <button onclick="closeResults()" 
+                            style="padding: 15px 30px; background: #00adb5; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin: 0 10px;">
+                        ЗАКРЫТЬ
+                    </button>
+                    <button onclick="openAnother()" 
+                            style="padding: 15px 30px; background: #ff9800; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin: 0 10px;">
+                        ОТКРЫТЬ ЕЩЁ
+                    </button>
+                </div>
+            `;
+            
+            overlay.style.display = 'flex';
+            
+            // Анимация в зависимости от выбора
+            if (state.selectedAnimation === 'fast') {
+                // Быстрое открытие - сразу показываем результаты
+            } else {
+                // Обычное открытие - можно добавить анимацию
+                container.style.animation = 'pulse 0.5s';
+            }
+        }
+
+        function closeResults() {
+            document.getElementById('result-overlay').style.display = 'none';
+        }
+
+        function openAnother() {
+            closeResults();
+            showSection('cases');
+        }
+
+        function openDemoCase() {
+            // Выбираем случайный кейс для демо
+            const caseIds = Object.keys(casesConfig);
+            const randomCaseId = caseIds[Math.floor(Math.random() * caseIds.length)];
+            const caseData = casesConfig[randomCaseId];
+            
+            // Генерируем 1-3 награды
+            const quantity = Math.floor(Math.random() * 3) + 1;
+            const rewards = [];
+            
+            for (let i = 0; i < quantity; i++) {
+                rewards.push(generateReward(caseData.rewards));
+            }
+            
+            const totalCost = caseData.cost * quantity;
+            const totalValue = rewards.reduce((sum, reward) => sum + reward.value, 0);
+            
+            const overlay = document.getElementById('result-overlay');
+            const container = document.getElementById('result-container');
+            
+            let rewardsHTML = '';
+            rewards.forEach((reward, index) => {
+                rewardsHTML += `
+                    <div class="reward-item">
+                        <div class="reward-icon">${reward.name.split(' ')[0]}</div>
+                        <div class="reward-name">${reward.name}</div>
+                        <div class="reward-value">${reward.value} ⭐</div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = `
+                <div class="result-title">🔄 ДЕМО РЕЖИМ</div>
+                <div style="margin: 20px 0; font-size: 18px;">
+                    Это демо-режим! Награды не добавлены в инвентарь.<br><br>
+                    Открыто: <strong>${quantity}</strong> ${caseData.name}<br>
+                    Стоимость (в реальной игре): <strong>${totalCost}</strong> ⭐<br>
+                    Получено бы: <strong>${totalValue}</strong> ⭐
+                </div>
+                <div class="rewards-grid">
+                    ${rewardsHTML}
+                </div>
+                <div style="margin-top: 30px;">
+                    <button onclick="closeResults()" 
+                            style="padding: 15px 30px; background: #00adb5; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin: 0 10px;">
+                        ЗАКРЫТЬ
+                    </button>
+                    <button onclick="openRealCase()" 
+                            style="padding: 15px 30px; background: #ff9800; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin: 0 10px;">
+                        ОТКРЫТЬ РЕАЛЬНЫЙ
+                    </button>
+                </div>
+            `;
+            
+            overlay.style.display = 'flex';
+        }
+
+        function openRealCase() {
+            closeResults();
+            showSection('cases');
+        }
+
+        // ===================== ПОПОЛНЕНИЕ БАЛАНСА =====================
+
+        function showDeposit() {
+            showSection('deposit');
+        }
+
+        function deposit(amount) {
+            state.balance += amount;
+            state.totalDeposited += amount;
+            
+            saveState();
+            updateUI();
+            
+            showNotification(`Баланс пополнен на ${amount} ⭐!`, "success");
+            
+            // Проверяем, нужно ли дать бесплатный кейс за пополнение от 1000
+            if (amount >= 1000) {
+                showNotification("🎁 Вы получили бесплатный кейс за пополнение от 1000 ⭐!", "success");
+            }
+        }
+
+        function depositCustom() {
+            const input = document.getElementById('custom-amount');
+            const amount = parseInt(input.value);
+            
+            if (!amount || amount <= 0) {
+                showNotification("Введите корректную сумму", "error");
+                return;
+            }
+            
+            if (amount > 100000) {
+                showNotification("Максимальная сумма пополнения: 100,000 ⭐", "error");
+                return;
+            }
+            
+            deposit(amount);
+            input.value = '';
+        }
+
+        // ===================== ПРОФИЛЬ И ИНВЕНТАРЬ =====================
+
+        function updateProfile() {
+            document.getElementById('profile-balance').textContent = state.balance;
+            document.getElementById('total-deposited').textContent = state.totalDeposited;
+            document.getElementById('total-spent').textContent = state.totalSpent;
+            document.getElementById('cases-opened').textContent = state.casesOpened;
+            
+            // Стоимость инвентаря
+            const inventoryValue = state.inventory.reduce((sum, item) => sum + item.totalValue, 0);
+            document.getElementById('inventory-value').textContent = inventoryValue;
+            
+            // ID пользователя
+            if (window.Telegram && Telegram.WebApp) {
+                const user = Telegram.WebApp.initDataUnsafe.user;
+                if (user) {
+                    document.getElementById('user-id').textContent = user.id;
+                }
+            }
+            
+            // Обновляем инвентарь
+            updateInventory();
+        }
+
+        function updateInventory() {
+            const container = document.getElementById('inventory-container');
+            
+            if (state.inventory.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #bbbbbb;">
+                        📦 Инвентарь пуст<br>
+                        <small>Откройте кейсы, чтобы получить предметы</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            let inventoryHTML = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;">';
+            
+            state.inventory.forEach(item => {
+                inventoryHTML += `
+                    <div style="background: rgba(0, 173, 181, 0.1); border-radius: 10px; padding: 15px; text-align: center;">
+                        <div style="font-size: 24px;">${item.name.split(' ')[0]}</div>
+                        <div style="font-size: 12px; margin: 5px 0;">${item.name}</div>
+                        <div style="color: #ff9800; font-size: 14px;">${item.value} ⭐</div>
+                        <div style="font-size: 11px; color: #bbbbbb; margin-top: 5px;">x${item.quantity}</div>
+                    </div>
+                `;
+            });
+            
+            inventoryHTML += '</div>';
+            container.innerHTML = inventoryHTML;
+        }
+
+        // ===================== ДРУЗЬЯ И ПРОМОКОДЫ =====================
+
+        function updateFriends() {
+            document.getElementById('promo-code').textContent = state.promoCode;
+            document.getElementById('invited-count').textContent = state.invitedCount;
+            document.getElementById('referral-bonuses').textContent = state.referralBonuses;
+        }
+
+        function copyPromoCode() {
+            navigator.clipboard.writeText(state.promoCode)
+                .then(() => showNotification("Промокод скопирован!", "success"))
+                .catch(() => {
+                    // Fallback для старых браузеров
+                    const textArea = document.createElement('textarea');
+                    textArea.value = state.promoCode;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showNotification("Промокод скопирован!", "success");
+                });
+        }
+
+        function activatePromoCode() {
+            const input = document.getElementById('promo-input');
+            const code = input.value.trim().toUpperCase();
+            
+            if (!code) {
+                showNotification("Введите промокод", "error");
+                return;
+            }
+            
+            if (code === state.promoCode) {
+                showNotification("Нельзя использовать свой промокод", "error");
+                return;
+            }
+            
+            // Здесь должна быть проверка промокода на сервере
+            // Для демо даем случайный бонус
+            const bonus = Math.floor(Math.random() * 100) + 50;
+            state.balance += bonus;
+            state.referralBonuses += bonus;
+            
+            saveState();
+            updateUI();
+            
+            showNotification(`Промокод активирован! Получено ${bonus} ⭐`, "success");
+            input.value = '';
+            
+            // Даем бесплатный кейс за промокод
+            showNotification("🎁 Вы получили бесплатный кейс за промокод!", "success");
+        }
+
+        // ===================== КОНКУРСЫ =====================
+
+        function updateContests() {
+            // Топ игроков (демо данные)
+            const leaderboard = document.getElementById('leaderboard');
+            leaderboard.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 5px;">
+                    <span>1. 👑 Игрок_1</span>
+                    <span>15,000 ⭐</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 5px;">
+                    <span>2. 🥈 Игрок_2</span>
+                    <span>12,500 ⭐</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 5px;">
+                    <span>3. 🥉 Игрок_3</span>
+                    <span>10,000 ⭐</span>
+                </div>
+            `;
+        }
+
+        function claimDailyBonus() {
+            const today = new Date().toDateString();
+            
+            if (state.lastDailyBonus === today) {
+                showNotification("Вы уже получали бонус сегодня", "error");
+                return;
+            }
+            
+            const bonus = Math.floor(Math.random() * 100) + 50;
+            state.balance += bonus;
+            state.lastDailyBonus = today;
+            
+            saveState();
+            updateUI();
+            
+            showNotification(`🎁 Ежедневный бонус: ${bonus} ⭐!`, "success");
+        }
+
+        // ===================== БЕСПЛАТНЫЕ КЕЙСЫ =====================
+
+        function showFreeCases() {
+            showSection('free-cases');
+        }
+
+        function showCases() {
+            showSection('cases');
+        }
+
+        function showFriends() {
+            showSection('friends');
+        }
+
+        // ===================== ОБНОВЛЕНИЕ UI =====================
+
+        function updateUI() {
+            // Баланс
+            document.getElementById('balance').textContent = state.balance;
+            
+            // Кнопка открытия
+            updateOpenButton();
+        }
+
+        // ===================== ИНИЦИАЛИЗАЦИЯ =====================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Загружаем состояние
+            loadState();
+            
+            // Инициализируем кейсы
+            initCases();
+            
+            // Telegram Web App
+            if (window.Telegram && Telegram.WebApp) {
+                Telegram.WebApp.ready();
+                Telegram.WebApp.expand();
+                
+                // Получаем данные пользователя
+                const user = Telegram.WebApp.initDataUnsafe.user;
+                if (user) {
+                    console.log('Telegram user:', user);
+                    
+                    // Можно использовать user.id для персональных данных
+                    // user.first_name, user.last_name, user.username
+                }
+                
+                // Настройка цвета
+                Telegram.WebApp.setHeaderColor('#0f3460');
+                Telegram.WebApp.setBackgroundColor('#1a1a2e');
+            }
+            
+            // Обновляем UI
+            updateUI();
+        });
+    </script>
+</body>
+</html>
