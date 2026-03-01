@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Хранитель бюджета</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--tg-theme-button-color, #40a7e3);
+        }
+
+        .card {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--tg-theme-hint-color, #ccc);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        button {
+            background: var(--tg-theme-button-color, #40a7e3);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 8px;
+            padding: 14px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button.secondary {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .category-btn {
+            background: var(--tg-theme-bg-color, #ffffff);
+            border: 1px solid var(--tg-theme-hint-color, #ccc);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-btn.selected {
+            background: var(--tg-theme-button-color, #40a7e3);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border-color: var(--tg-theme-button-color, #40a7e3);
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--tg-theme-hint-color, #ccc);
+        }
+
+        .stat-total {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: var(--tg-theme-button-color, #40a7e3);
+            color: var(--tg-theme-button-text-color, #ffffff);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .quick-amounts {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .quick-amount {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            border: none;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Хранитель бюджета</h1>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('add')">➕ Добавить</div>
+            <div class="tab" onclick="switchTab('stats')">📊 Статистика</div>
+            <div class="tab" onclick="switchTab('categories')">📋 Категории</div>
+        </div>
+
+        <!-- Вкладка добавления расхода -->
+        <div id="tab-add" class="card">
+            <h2>Добавить расход</h2>
+            
+            <div class="quick-amounts">
+                <button class="quick-amount" onclick="setAmount(100)">100 ₽</button>
+                <button class="quick-amount" onclick="setAmount(500)">500 ₽</button>
+                <button class="quick-amount" onclick="setAmount(1000)">1000 ₽</button>
+                <button class="quick-amount" onclick="setAmount(5000)">5000 ₽</button>
+            </div>
+
+            <div class="form-group">
+                <label>Сумма (₽)</label>
+                <input type="number" id="amount" placeholder="Введите сумму" min="0" step="0.01">
+            </div>
+
+            <div class="form-group">
+                <label>Категория</label>
+                <select id="category">
+                    <option value="🍔 Еда">🍔 Еда</option>
+                    <option value="🏠 Жильё">🏠 Жильё</option>
+                    <option value="🚗 Транспорт">🚗 Транспорт</option>
+                    <option value="🛒 Покупки">🛒 Покупки</option>
+                    <option value="🎮 Развлечения">🎮 Развлечения</option>
+                    <option value="💊 Здоровье">💊 Здоровье</option>
+                    <option value="📚 Образование">📚 Образование</option>
+                    <option value="💼 Работа">💼 Работа</option>
+                    <option value="📱 Связь">📱 Связь</option>
+                    <option value="💸 Другое">💸 Другое</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Описание (необязательно)</label>
+                <textarea id="description" placeholder="Например: обед в кафе" rows="2"></textarea>
+            </div>
+
+            <button onclick="addExpense()">➕ Добавить расход</button>
+        </div>
+
+        <!-- Вкладка статистики -->
+        <div id="tab-stats" class="card hidden">
+            <h2>Статистика за месяц</h2>
+            <div id="stats-content">Загрузка...</div>
+        </div>
+
+        <!-- Вкладка категорий -->
+        <div id="tab-categories" class="card hidden">
+            <h2>Управление категориями</h2>
+            
+            <div class="form-group">
+                <label>Новая категория</label>
+                <input type="text" id="new-category-name" placeholder="Название">
+            </div>
+            
+            <div class="form-group">
+                <label>Эмодзи</label>
+                <input type="text" id="new-category-emoji" placeholder="📌" maxlength="2">
+            </div>
+
+            <button onclick="addCategory()" class="secondary">➕ Добавить категорию</button>
+
+            <h3 style="margin-top: 20px;">Текущие категории</h3>
+            <div id="categories-list" class="categories-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.MainButton.setText('Закрыть');
+        tg.MainButton.onClick(() => tg.close());
+
+        // Текущие категории (в реальном приложении будут загружаться с сервера)
+        let categories = [
+            { emoji: '🍔', name: 'Еда' },
+            { emoji: '🏠', name: 'Жильё' },
+            { emoji: '🚗', name: 'Транспорт' },
+            { emoji: '🛒', name: 'Покупки' },
+            { emoji: '🎮', name: 'Развлечения' },
+            { emoji: '💊', name: 'Здоровье' },
+            { emoji: '📚', name: 'Образование' },
+            { emoji: '💼', name: 'Работа' },
+            { emoji: '📱', name: 'Связь' },
+            { emoji: '💸', name: 'Другое' }
+        ];
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('[id^="tab-"]').forEach(t => t.classList.add('hidden'));
+            
+            if (tab === 'add') {
+                document.querySelector('.tab:nth-child(1)').classList.add('active');
+                document.getElementById('tab-add').classList.remove('hidden');
+            } else if (tab === 'stats') {
+                document.querySelector('.tab:nth-child(2)').classList.add('active');
+                document.getElementById('tab-stats').classList.remove('hidden');
+                loadStats();
+            } else if (tab === 'categories') {
+                document.querySelector('.tab:nth-child(3)').classList.add('active');
+                document.getElementById('tab-categories').classList.remove('hidden');
+                renderCategories();
+            }
+        }
+
+        function setAmount(amount) {
+            document.getElementById('amount').value = amount;
+        }
+
+        function addExpense() {
+            const amount = document.getElementById('amount').value;
+            const category = document.getElementById('category').value;
+            const description = document.getElementById('description').value;
+
+            if (!amount || amount <= 0) {
+                tg.showAlert('Пожалуйста, введите сумму');
+                return;
+            }
+
+            // Отправляем данные в бота
+            tg.sendData(JSON.stringify({
+                type: 'expense',
+                amount: parseFloat(amount),
+                category: category,
+                description: description
+            }));
+
+            // Очищаем форму
+            document.getElementById('amount').value = '';
+            document.getElementById('description').value = '';
+
+            tg.showAlert('✅ Расход добавлен!');
+        }
+
+        function addCategory() {
+            const name = document.getElementById('new-category-name').value;
+            const emoji = document.getElementById('new-category-emoji').value || '📌';
+
+            if (!name) {
+                tg.showAlert('Введите название категории');
+                return;
+            }
+
+            // Отправляем запрос на добавление категории
+            tg.sendData(JSON.stringify({
+                type: 'new_category',
+                name: name,
+                emoji: emoji
+            }));
+
+            document.getElementById('new-category-name').value = '';
+            document.getElementById('new-category-emoji').value = '';
+
+            // Добавляем в локальный список
+            categories.push({ emoji, name });
+            renderCategories();
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('categories-list');
+            container.innerHTML = '';
+            
+            categories.forEach(cat => {
+                const btn = document.createElement('div');
+                btn.className = 'category-btn';
+                btn.innerHTML = `${cat.emoji} ${cat.name}`;
+                btn.onclick = () => selectCategory(cat.name);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectCategory(categoryName) {
+            const select = document.getElementById('category');
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].text.includes(categoryName)) {
+                    select.selectedIndex = i;
+                    switchTab('add');
+                    break;
+                }
+            }
+        }
+
+        function loadStats() {
+            // В реальном приложении здесь будет запрос к серверу
+            // Сейчас показываем демо-данные
+            const statsContent = document.getElementById('stats-content');
+            
+            // Имитация загрузки
+            setTimeout(() => {
+                statsContent.innerHTML = `
+                    <div class="stat-total">💰 Всего: 45,750 ₽</div>
+                    
+                    <div class="stat-item">
+                        <span>🍔 Еда</span>
+                        <span>15,200 ₽ (33.2%)</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>🏠 Жильё
