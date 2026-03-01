@@ -1,0 +1,5 @@
+aiogram==2.25.1
+matplotlib==3.7.1
+SpeechRecognition==3.10.0
+pydub==0.25.1
+aiohttp==3.8.4
